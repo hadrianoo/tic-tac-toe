@@ -12,17 +12,23 @@ const gameBoard = (() => {
     const getBoardPosition = (arr, item) => board[arr][item];
 
     const updateBoard = (arr, item, playerSymbol) => {
-        board[arr][item] = playerSymbol;
-
-        checkBoardStatus(playerSymbol);
-
+        if (getBoardPosition(arr, item) === 0) {
+            board[arr][item] = playerSymbol;
+            if (checkDrawStatus()) {
+                return checkBoardStatus(playerSymbol);
+            } else {
+                return "Draw";
+            }
+        } else {
+            return "This position it taken, try again";
+        }
     }
 
     const checkBoardStatus = (playerSymbol) => {
         if (checkRowStatus(playerSymbol) || checkColStatus(playerSymbol) || checkDiagonalStatus(playerSymbol)) {
-            console.log(`player ${playerSymbol} won`)
+            return playerSymbol;
         }
-
+        return "Continue";
     }
 
     const checkRowStatus = (symbol) => {
@@ -50,7 +56,6 @@ const gameBoard = (() => {
     }
 
     const checkDiagonalStatus = (symbol) => {
-
         if (getBoard()[0][0] === symbol &&
             getBoard()[1][1] === symbol &&
             getBoard()[2][2] === symbol) {
@@ -61,9 +66,9 @@ const gameBoard = (() => {
             getBoard()[2][0] === symbol) {
             return true;
         }
-
     }
 
+    const checkDrawStatus = () => gameBoard.getBoard().flat().includes(0);
 
     return {
         getBoard,
@@ -73,19 +78,22 @@ const gameBoard = (() => {
 })();
 
 
-function createPlayer(name) {
+function createPlayer(name, symbol) {
+    const playerName = name;
+    const playerSymbol = symbol;
     let playerScore = 0;
 
-    const getPlayerName = () => name;
+    const getPlayerName = () => playerName;
+    const getPlayerSymbol = () => playerSymbol;
     const getPlayerScore = () => playerScore;
     const incrementPlayerScore = () => playerScore++;
 
     return {
         getPlayerName,
+        getPlayerSymbol,
         getPlayerScore,
         incrementPlayerScore,
     }
-
 };
 
 const game = (() => {
@@ -94,23 +102,13 @@ const game = (() => {
     let playerChoiceCol = 0;
     let player = "";
 
-
-    const checkBoardPosition = () => {
-        if (gameBoard.getBoardPosition(playerChoiceRow, playerChoiceCol) === 0) {
-            gameBoard.updateBoard(playerChoiceRow, playerChoiceCol, player);
-        } else {
-            console.log("This position it taken, try again");
-        }
-    }
-
-
     const setPlayerChoice = (arr, item, playerSymbol) => {
         playerChoiceRow = arr;
         playerChoiceCol = item;
         player = playerSymbol;
-        checkBoardPosition();
-        console.table(gameBoard.getBoard())
 
+        console.log(gameBoard.updateBoard(playerChoiceRow, playerChoiceCol, player));
+        console.table(gameBoard.getBoard());
     }
 
     return {
@@ -121,7 +119,25 @@ const game = (() => {
 })();
 
 
+// game.setPlayerChoice(0, 0, "X");
+// game.setPlayerChoice(1, 1, "X");
+// game.setPlayerChoice(2, 2, "X");
+
+// game.setPlayerChoice(0, 1, "X");
+// game.setPlayerChoice(1, 1, "X");
+// game.setPlayerChoice(2, 1, "X");
+
+// game.setPlayerChoice(0, 2, "O");
+// game.setPlayerChoice(1, 2, "O");
+// game.setPlayerChoice(2, 2, "O");
+
+game.setPlayerChoice(0, 2, "O");
+game.setPlayerChoice(1, 1, "O");
+game.setPlayerChoice(2, 1, "O");
 
 game.setPlayerChoice(0, 1, "X");
-game.setPlayerChoice(1, 1, "X");
-game.setPlayerChoice(2, 1, "X");
+game.setPlayerChoice(1, 2, "X");
+game.setPlayerChoice(0, 0, "X");
+
+
+console.log(gameBoard.getBoard().flat().includes(0), "Checker: true = draw")
