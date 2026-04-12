@@ -32,17 +32,16 @@ const gameBoard = (() => {
     }
 
     const checkRowStatus = (symbol) => {
-        getBoard().forEach(row => {
+        for (let row of getBoard()) {
             let symbolCount = 0;
             row.forEach(item => {
-                if (item === symbol) {
-                    symbolCount++;
-                }
+                if (item === symbol) symbolCount++;
             })
             if (symbolCount === 3) {
                 return true;
             }
-        })
+        }
+        return false;
     }
 
     const checkColStatus = (symbol) => {
@@ -53,6 +52,7 @@ const gameBoard = (() => {
                 return true;
             }
         }
+        return false;
     }
 
     const checkDiagonalStatus = (symbol) => {
@@ -66,6 +66,7 @@ const gameBoard = (() => {
             getBoard()[2][0] === symbol) {
             return true;
         }
+        return false;
     }
 
     const checkDrawStatus = () => gameBoard.getBoard().flat().includes(0);
@@ -82,62 +83,157 @@ function createPlayer(name, symbol) {
     const playerName = name;
     const playerSymbol = symbol;
     let playerScore = 0;
+    let playerChoiceRow = 0;
+    let playerChoiceCol = 0;
 
     const getPlayerName = () => playerName;
     const getPlayerSymbol = () => playerSymbol;
     const getPlayerScore = () => playerScore;
     const incrementPlayerScore = () => playerScore++;
 
+    const setPlayerChoice = (arr, item) => {
+        playerChoiceRow = arr;
+        playerChoiceCol = item;
+    };
+
+    const getPlayerChoice = () => {
+        return { playerChoiceRow, playerChoiceCol, playerSymbol };
+    };
+
     return {
         getPlayerName,
         getPlayerSymbol,
         getPlayerScore,
         incrementPlayerScore,
+        setPlayerChoice,
+        getPlayerChoice
     }
 };
 
 const game = (() => {
 
-    let playerChoiceRow = 0;
-    let playerChoiceCol = 0;
-    let player = "";
+    let symbol = "";
+    let gameStatus = ""
 
-    const setPlayerChoice = (arr, item, playerSymbol) => {
-        playerChoiceRow = arr;
-        playerChoiceCol = item;
-        player = playerSymbol;
+    const setFirstPlayer = () => {
+        let random = Math.floor(Math.random() * 2);
+        return random === 0 ? symbol = "X" : symbol = "O";
+    }
+    setFirstPlayer()
 
-        console.log(gameBoard.updateBoard(playerChoiceRow, playerChoiceCol, player));
-        console.table(gameBoard.getBoard());
+    const getSymbol = () => symbol;
+
+    const handlePlayerChoice = (obj) => {
+
+        if (getSymbol() === obj.playerSymbol) {
+            console.log("Let the next player choose");
+            return "Let the next player choose"
+        }
+        symbol = obj.playerSymbol;
+        gameStatus = gameBoard.updateBoard(obj.playerChoiceRow, obj.playerChoiceCol, obj.playerSymbol);
+        checkGameStatus(gameStatus);
     }
 
-    return {
-        setPlayerChoice,
+    const checkGameStatus = (status) => {
 
+        switch (status) {
+            case "X": {
+                console.log(`Player ${player1.getPlayerName()} won`)
+                break;
+            }
+            case "O": {
+                console.log(`Player ${player2.getPlayerName()} won`)
+                break;
+            }
+            case "Draw": {
+                console.log("Draw: Game over")
+                break;
+            }
+            case "Continue": {
+                if (getSymbol() === "X") {
+                    console.log(`Player ${player2.getPlayerName()} move`)
+                } else {
+                    console.log(`Player ${player1.getPlayerName()} move`)
+                }
+                break;
+            }
+        }
+    }
+    return {
+        handlePlayerChoice,
+        getSymbol,
+    }
+})();
+
+const displayController = (() => {
+
+
+    const container = document.querySelector(".container");
+    const board = document.querySelector(".board");
+
+
+    const renderBoard = () => {
+        board.innerHTML = "";
+        for (let i = 0; i < gameBoard.getBoard().length; i++) {
+            for (let j = 0; j < gameBoard.getBoard()[i].length; j++) {
+                const tile = document.createElement("div");
+                tile.id = [i, j];
+                tile.textContent = gameBoard.getBoard()[i][j];
+                board.appendChild(tile);
+            }
+        }
+    }
+    board.addEventListener("click", (event) => {
+        console.log(event.target)
+        const [row, col] = event.target.id.split(",")
+        if (game.getSymbol() !== "X") {
+            player1.setPlayerChoice(row, col);
+            game.handlePlayerChoice(player1.getPlayerChoice());
+        } else {
+            player2.setPlayerChoice(row, col);
+            game.handlePlayerChoice(player2.getPlayerChoice());
+        }
+        renderBoard();
+
+    })
+
+    return {
+        renderBoard,
     }
 
 })();
 
 
-// game.setPlayerChoice(0, 0, "X");
-// game.setPlayerChoice(1, 1, "X");
-// game.setPlayerChoice(2, 2, "X");
 
-// game.setPlayerChoice(0, 1, "X");
-// game.setPlayerChoice(1, 1, "X");
-// game.setPlayerChoice(2, 1, "X");
+const player1 = createPlayer("Adrian", "X");
+const player2 = createPlayer("Kamil", "O");
 
-// game.setPlayerChoice(0, 2, "O");
-// game.setPlayerChoice(1, 2, "O");
-// game.setPlayerChoice(2, 2, "O");
+// player1.setPlayerChoice(0, 1);
+// game.handlePlayerChoice(player1.getPlayerChoice());
 
-game.setPlayerChoice(0, 2, "O");
-game.setPlayerChoice(1, 1, "O");
-game.setPlayerChoice(2, 1, "O");
+// player2.setPlayerChoice(1, 1);
+// game.handlePlayerChoice(player2.getPlayerChoice());
 
-game.setPlayerChoice(0, 1, "X");
-game.setPlayerChoice(1, 2, "X");
-game.setPlayerChoice(0, 0, "X");
+// player1.setPlayerChoice(0, 2);
+// game.handlePlayerChoice(player1.getPlayerChoice());
 
+// player2.setPlayerChoice(1, 2);
+// game.handlePlayerChoice(player2.getPlayerChoice());
 
-console.log(gameBoard.getBoard().flat().includes(0), "Checker: true = draw")
+// player1.setPlayerChoice(1, 0);
+// game.handlePlayerChoice(player1.getPlayerChoice());
+
+// player2.setPlayerChoice(2, 2);
+// game.handlePlayerChoice(player2.getPlayerChoice());
+
+// player1.setPlayerChoice(2, 0);
+// game.handlePlayerChoice(player1.getPlayerChoice());
+
+// player2.setPlayerChoice(2, 1);
+// game.handlePlayerChoice(player2.getPlayerChoice());
+
+// player1.setPlayerChoice(0, 0);
+// game.handlePlayerChoice(player1.getPlayerChoice());
+
+console.table(gameBoard.getBoard());
+displayController.renderBoard();
