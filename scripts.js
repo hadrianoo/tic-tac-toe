@@ -17,10 +17,11 @@ const gameBoard = (() => {
             if (checkDrawStatus()) {
                 return checkBoardStatus(playerSymbol);
             } else {
-                return "Draw";
+                return "draw";
             }
         } else {
-            return "This position it taken, try again";
+            console.log("This position it taken, try again")
+            return "taken";
         }
     }
 
@@ -28,7 +29,7 @@ const gameBoard = (() => {
         if (checkRowStatus(playerSymbol) || checkColStatus(playerSymbol) || checkDiagonalStatus(playerSymbol)) {
             return playerSymbol;
         }
-        return "Continue";
+        return "continue";
     }
 
     const checkRowStatus = (symbol) => {
@@ -112,53 +113,52 @@ function createPlayer(name, symbol) {
 
 const game = (() => {
 
-    let symbol = "";
-    let gameStatus = ""
+    let symbol = Math.floor(Math.random() * 2) === 0 ? "x" : "o";
+    // let gameStatus = ""
 
-    const setFirstPlayer = () => {
-        let random = Math.floor(Math.random() * 2);
-        return random === 0 ? symbol = "X" : symbol = "O";
-    }
-    setFirstPlayer()
-
+    // const setFirstPlayer = () => {
+    //     let random = Math.floor(Math.random() * 2);
+    //     return random === 0 ? symbol = "x" : symbol = "o";
+    // }
+    // setFirstPlayer()
     const getSymbol = () => symbol;
 
+
+
     const handlePlayerChoice = (obj) => {
+        let gameStatus = gameBoard.updateBoard(obj.playerChoiceRow, obj.playerChoiceCol, obj.playerSymbol).toLowerCase();
 
-        if (getSymbol() === obj.playerSymbol) {
-            console.log("Let the next player choose");
-            return "Let the next player choose"
-        }
-        symbol = obj.playerSymbol;
-        gameStatus = gameBoard.updateBoard(obj.playerChoiceRow, obj.playerChoiceCol, obj.playerSymbol);
-        checkGameStatus(gameStatus);
-    }
-
-    const checkGameStatus = (status) => {
-
-        switch (status) {
-            case "X": {
+        switch (gameStatus) {
+            case "x": {
                 console.log(`Player ${player1.getPlayerName()} won`)
                 break;
             }
-            case "O": {
+            case "o": {
                 console.log(`Player ${player2.getPlayerName()} won`)
                 break;
             }
-            case "Draw": {
+            case "draw": {
                 console.log("Draw: Game over")
                 break;
             }
-            case "Continue": {
-                if (getSymbol() === "X") {
+            case "continue": {
+                symbol = obj.playerSymbol;
+                if (getSymbol() === "x") {
                     console.log(`Player ${player2.getPlayerName()} move`)
                 } else {
                     console.log(`Player ${player1.getPlayerName()} move`)
                 }
                 break;
             }
+            case "taken": {
+                console.log("Taken position")
+                break;
+            }
         }
     }
+
+
+
     return {
         handlePlayerChoice,
         getSymbol,
@@ -186,7 +186,7 @@ const displayController = (() => {
     board.addEventListener("click", (event) => {
         console.log(event.target)
         const [row, col] = event.target.id.split(",")
-        if (game.getSymbol() !== "X") {
+        if (game.getSymbol() !== "x") {
             player1.setPlayerChoice(row, col);
             game.handlePlayerChoice(player1.getPlayerChoice());
         } else {
@@ -205,8 +205,8 @@ const displayController = (() => {
 
 
 
-const player1 = createPlayer("Adrian", "X");
-const player2 = createPlayer("Kamil", "O");
+const player1 = createPlayer("Adrian", "x");
+const player2 = createPlayer("Kamil", "o");
 
 // player1.setPlayerChoice(0, 1);
 // game.handlePlayerChoice(player1.getPlayerChoice());
