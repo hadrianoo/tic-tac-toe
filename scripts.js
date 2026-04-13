@@ -118,7 +118,8 @@ function createPlayer(symbol) {
         incrementPlayerScore,
         setPlayerChoice,
         setPlayerName,
-        getPlayerChoice
+        getPlayerChoice,
+
     }
 };
 
@@ -129,22 +130,24 @@ const game = (() => {
 
     const handlePlayerChoice = (obj) => {
         let gameStatus = gameBoard.updateBoard(obj.playerChoiceRow, obj.playerChoiceCol, obj.playerSymbol).toLowerCase();
-
         switch (gameStatus) {
             case "x": {
                 infoController.win(player1.getPlayerName());
                 player1.incrementPlayerScore();
                 gameBoard.restartBoard();
+                infoController.reset();
                 break;
             }
             case "o": {
                 infoController.win(player2.getPlayerName());
                 player2.incrementPlayerScore();
                 gameBoard.restartBoard();
+                infoController.reset();
                 break;
             }
             case "draw": {
-                infoController("draw")
+                infoController.draw();
+                infoController.reset();
                 gameBoard.restartBoard();
                 break;
             }
@@ -162,7 +165,9 @@ const game = (() => {
                 break;
             }
         }
+        scoreController.updatePlayerScore();
     }
+
 
     return {
         handlePlayerChoice,
@@ -196,12 +201,31 @@ const infoController = (() => {
     }
 })();
 
+const scoreController = (() => {
+    const player1Label = document.querySelector(".player1-label");
+    const player2Label = document.querySelector(".player2-label");
+    const player1Score = document.querySelector(".player1-score");
+    const player2Score = document.querySelector(".player2-score");
+
+    const setScorePlayerNames = (player1Name, player2Name) => {
+        player1Label.innerHTML = player1Name;
+        player2Label.innerHTML = player2Name;
+    }
+
+    const updatePlayerScore = () => {
+        player1Score.innerHTML = player1.getPlayerScore();
+        player2Score.innerHTML = player2.getPlayerScore();
+    }
+    return {
+        setScorePlayerNames,
+        updatePlayerScore,
+    }
+
+})();
+
 
 const displayController = (() => {
-
-    const container = document.querySelector(".container");
     const button = document.querySelector("button");
-
     const board = document.querySelector(".board");
     board.style.pointerEvents = "none";
     infoController.init();
@@ -220,11 +244,14 @@ const displayController = (() => {
     }
 
     const firstChooseName = () => {
-        const inputPlayer1 = document.getElementById("player1-input").value;
-        const inputPlayer2 = document.getElementById("player2-input").value;
-        player1.setPlayerName(inputPlayer1);
-        player2.setPlayerName(inputPlayer2);
+        const inputPlayer1 = document.getElementById("player1-input");
+        const inputPlayer2 = document.getElementById("player2-input");
+        player1.setPlayerName(inputPlayer1.value);
+        player2.setPlayerName(inputPlayer2.value);
+        scoreController.setScorePlayerNames(inputPlayer1.value, inputPlayer2.value)
         if (inputPlayer1 !== "" && inputPlayer2 !== "") {
+            inputPlayer1.disabled = true;
+            inputPlayer2.disabled = true;
             return true;
         }
         return false;
