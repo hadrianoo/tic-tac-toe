@@ -236,8 +236,16 @@ const displayController = (() => {
             for (let j = 0; j < gameBoard.getBoard()[i].length; j++) {
                 const tile = document.createElement("div");
                 tile.id = [i, j];
-                tile.style.backgroundColor = "#b4d3d9";
+                tile.style.backgroundColor = "#373F51";
+                tile.style.borderRadius = "1rem";
                 tile.textContent = gameBoard.getBoard()[i][j];
+                tile.style.display = "flex";
+                tile.style.justifyContent = "center";
+                tile.style.alignItems = "center";
+                tile.style.fontSize = "10rem";
+                if (tile.textContent === "0") {
+                    tile.style.fontSize = "0px";
+                }
                 board.appendChild(tile);
             }
         }
