@@ -1,9 +1,13 @@
 :root {
     font-size: 62.5%;
-    --swiss-coffee: #F2EAE0;
-    --light-grayish-cyan: #b4d3d9;
-    --grayish-violet: #bda6ce;
-    --slightly-desaturated-blue: #9b8ec7;
+
+
+    --lobster-pink: #db5461ff;
+    --pale-sky: #b8d4e3ff;
+    --amber-earth: #e28413ff;
+    --night-bordeaux: #4f000bff;
+    --charcoal-blue: #373f51ff;
+    --white: white;
 }
 
 body {
@@ -13,12 +17,12 @@ body {
     margin-top: 20rem;
 }
 
-* {
+/* * {
     border: 1px solid black;
-}
+} */
 
 .container {
-    background-color: var(--swiss-coffee);
+    background-color: var(--pale-sky);
     border-radius: 1rem;
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -41,6 +45,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
+    place-items: center;
 }
 
 
@@ -57,28 +62,51 @@ body {
     padding: 1rem;
     margin: 1rem;
     border-radius: 1rem;
-    background-color: var(--player-color, red);
+    background-color: var(--night-bordeaux);
+    max-width: 60%;
+    min-height: 10rem;
+    align-content: center;
+
+}
+
+input {
+    border: none;
+    background-color: var(--lobster-pink);
+    text-align: center;
+    color: var(--white);
+}
+
+input::placeholder {
+    color: var(--white)
+}
+
+input:disabled {
+    background-color: var(--night-bordeaux);
 }
 
 #player1-input:valid,
 #player2-input:valid {
-    background-color: var(--swiss-coffee);
+    border: none;
+    border-radius: 1rem;
+    padding: 4px;
 }
 
 .name {
     text-align: center;
+    margin-bottom: 2rem;
 }
 
 .symbol {
-    margin-top: 0.4rem;
     text-align: center;
+    color: var(--white);
+    font-size: 4rem;
 }
 
 .info-wrapper {
     grid-row: 1 / 4;
     grid-column: 2;
     display: grid;
-    grid-template-rows: 33% 1fr 1fr;
+    grid-template-rows: 66% 1fr 1fr;
 }
 
 .info {

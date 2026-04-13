@@ -249,9 +249,10 @@ const displayController = (() => {
         player1.setPlayerName(inputPlayer1.value);
         player2.setPlayerName(inputPlayer2.value);
         scoreController.setScorePlayerNames(inputPlayer1.value, inputPlayer2.value)
-        if (inputPlayer1 !== "" && inputPlayer2 !== "") {
+        if (inputPlayer1.value !== "" && inputPlayer2.value !== "") {
             inputPlayer1.disabled = true;
             inputPlayer2.disabled = true;
+            console.log(inputPlayer1)
             return true;
         }
         return false;
