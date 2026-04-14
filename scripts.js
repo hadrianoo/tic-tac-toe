@@ -1,8 +1,8 @@
 const gameBoard = (() => {
     let board = [
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0]
+        ["", "", ""],
+        ["", "", ""],
+        ["", "", ""]
     ]
 
     const getBoard = () => {
@@ -11,18 +11,16 @@ const gameBoard = (() => {
 
     const restartBoard = () => {
         return board = [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]
+            ["", "", ""],
+            ["", "", ""],
+            ["", "", ""]
         ]
     }
-
     const getBoardPosition = (arr, item) => board[arr][item];
-
     const updateBoard = (arr, item, playerSymbol) => {
-        if (getBoardPosition(arr, item) === 0) {
+        if (getBoardPosition(arr, item) === "") {
             board[arr][item] = playerSymbol;
-            if (checkDrawStatus()) {
+            if (hasFreeSpaces()) {
                 return checkBoardStatus(playerSymbol);
             } else {
                 return "draw";
@@ -53,7 +51,7 @@ const gameBoard = (() => {
     }
 
     const checkColStatus = (symbol) => {
-        for (let i = 0; i <= 3; i++) {
+        for (let i = 0; i < 3; i++) {
             if (getBoard()[0][i] === symbol &&
                 getBoard()[1][i] === symbol &&
                 getBoard()[2][i] === symbol) {
@@ -77,7 +75,7 @@ const gameBoard = (() => {
         return false;
     }
 
-    const checkDrawStatus = () => gameBoard.getBoard().flat().includes(0);
+    const hasFreeSpaces = () => gameBoard.getBoard().flat().includes("");
 
     return {
         getBoard,
@@ -90,6 +88,7 @@ const gameBoard = (() => {
 
 function createPlayer(symbol) {
     const playerSymbol = symbol;
+
     let playerName = "";
     let playerScore = 0;
     let playerChoiceRow = 0;
@@ -99,13 +98,12 @@ function createPlayer(symbol) {
     const getPlayerSymbol = () => playerSymbol;
     const getPlayerScore = () => playerScore;
     const incrementPlayerScore = () => playerScore++;
+    const setPlayerName = (name) => playerName = name;
 
     const setPlayerChoice = (arr, item) => {
         playerChoiceRow = arr;
         playerChoiceCol = item;
     };
-
-    const setPlayerName = (name) => playerName = name;
 
     const getPlayerChoice = () => {
         return { playerChoiceRow, playerChoiceCol, playerSymbol };
@@ -119,45 +117,54 @@ function createPlayer(symbol) {
         setPlayerChoice,
         setPlayerName,
         getPlayerChoice,
-
     }
 };
 
 const game = (() => {
-
     let symbol = Math.floor(Math.random() * 2) === 0 ? "x" : "o";
+
     const getSymbol = () => symbol;
 
+    const checkNextPlayerMove = () => {
+        getSymbol() === "x" ? infoController.playerMove(player1.getPlayerName()) :
+            infoController.playerMove(player2.getPlayerName());
+    }
+
     const handlePlayerChoice = (obj) => {
-        let gameStatus = gameBoard.updateBoard(obj.playerChoiceRow, obj.playerChoiceCol, obj.playerSymbol).toLowerCase();
+        let gameStatus = gameBoard.updateBoard(
+            obj.playerChoiceRow,
+            obj.playerChoiceCol,
+            obj.playerSymbol);
+
         switch (gameStatus) {
             case "x": {
                 infoController.win(player1.getPlayerName());
+                symbol = "o"
                 player1.incrementPlayerScore();
                 gameBoard.restartBoard();
                 infoController.reset();
+                checkNextPlayerMove();
                 break;
             }
             case "o": {
                 infoController.win(player2.getPlayerName());
+                symbol = "x"
                 player2.incrementPlayerScore();
                 gameBoard.restartBoard();
                 infoController.reset();
+                checkNextPlayerMove();
                 break;
             }
             case "draw": {
                 infoController.draw();
                 infoController.reset();
                 gameBoard.restartBoard();
+                checkNextPlayerMove();
                 break;
             }
             case "continue": {
-                symbol = obj.playerSymbol;
-                if (getSymbol() === "x") {
-                    infoController.playerMove(player2.getPlayerName());
-                } else {
-                    infoController.playerMove(player1.getPlayerName());
-                }
+                getSymbol() === "x" ? symbol = "o" : symbol = "x";
+                checkNextPlayerMove();
                 break;
             }
             case "taken": {
@@ -168,7 +175,6 @@ const game = (() => {
         scoreController.updatePlayerScore();
     }
 
-
     return {
         handlePlayerChoice,
         getSymbol,
@@ -178,26 +184,25 @@ const game = (() => {
 const player1 = createPlayer("x");
 const player2 = createPlayer("o");
 
-
-
 const infoController = (() => {
     const msgBox = document.querySelector(".msgbox");
+
     const sendMsg = (msg) => {
         const br = document.createElement("br");
-
-        msgBox.innerHTML += msg;
+        msgBox.insertAdjacentHTML("beforeend", msg);
         msgBox.appendChild(br);
         msgBox.scrollTop = msgBox.scrollHeight;
     }
+
     return {
         init: () => sendMsg("Hello: input your names first."),
-        win: (player) => sendMsg(`Player ${player} won.`),
+        win: (player) => sendMsg(`Player <span class="msg-player">${player}</span> won. <span class="win"></span>`),
         draw: () => sendMsg("Draw: Game over."),
         name: () => sendMsg("You forgot about your name."),
         play: () => sendMsg("Have Fun."),
-        playerMove: (player) => sendMsg(`Player ${player} move.`),
+        playerMove: (player) => sendMsg(`Player <span class="msg-player">${player}</span> move.`),
         taken: () => sendMsg("Position taken."),
-        reset: () => sendMsg("Board restarted")
+        reset: () => sendMsg("Board restarted"),
     }
 })();
 
@@ -208,25 +213,25 @@ const scoreController = (() => {
     const player2Score = document.querySelector(".player2-score");
 
     const setScorePlayerNames = (player1Name, player2Name) => {
-        player1Label.innerHTML = player1Name;
-        player2Label.innerHTML = player2Name;
+        player1Label.textContent = player1Name;
+        player2Label.textContent = player2Name;
     }
 
     const updatePlayerScore = () => {
-        player1Score.innerHTML = player1.getPlayerScore();
-        player2Score.innerHTML = player2.getPlayerScore();
+        player1Score.textContent = player1.getPlayerScore();
+        player2Score.textContent = player2.getPlayerScore();
     }
+
     return {
         setScorePlayerNames,
         updatePlayerScore,
     }
-
 })();
-
 
 const displayController = (() => {
     const button = document.querySelector("button");
     const board = document.querySelector(".board");
+
     board.style.pointerEvents = "none";
     infoController.init();
 
@@ -235,17 +240,10 @@ const displayController = (() => {
         for (let i = 0; i < gameBoard.getBoard().length; i++) {
             for (let j = 0; j < gameBoard.getBoard()[i].length; j++) {
                 const tile = document.createElement("div");
-                tile.id = [i, j];
-                tile.style.backgroundColor = "#373F51";
-                tile.style.borderRadius = "1rem";
+                tile.dataset.row = i;
+                tile.dataset.col = j;
+                tile.classList.add("tile");
                 tile.textContent = gameBoard.getBoard()[i][j];
-                tile.style.display = "flex";
-                tile.style.justifyContent = "center";
-                tile.style.alignItems = "center";
-                tile.style.fontSize = "10rem";
-                if (tile.textContent === "0") {
-                    tile.style.fontSize = "0px";
-                }
                 board.appendChild(tile);
             }
         }
@@ -260,23 +258,24 @@ const displayController = (() => {
         if (inputPlayer1.value !== "" && inputPlayer2.value !== "") {
             inputPlayer1.disabled = true;
             inputPlayer2.disabled = true;
-            console.log(inputPlayer1)
             return true;
         }
         return false;
     }
 
     board.addEventListener("click", (event) => {
-        console.log(event.target)
-        const [row, col] = event.target.id.split(",")
-        if (game.getSymbol() !== "x") {
-            player1.setPlayerChoice(row, col);
-            game.handlePlayerChoice(player1.getPlayerChoice());
-        } else {
-            player2.setPlayerChoice(row, col);
-            game.handlePlayerChoice(player2.getPlayerChoice());
+        if (!event.target.classList.contains("board")) {
+            const row = event.target.dataset.row;
+            const col = event.target.dataset.col;
+            if (game.getSymbol() === "x") {
+                player1.setPlayerChoice(row, col);
+                game.handlePlayerChoice(player1.getPlayerChoice());
+            } else {
+                player2.setPlayerChoice(row, col);
+                game.handlePlayerChoice(player2.getPlayerChoice());
+            }
+            renderBoard();
         }
-        renderBoard();
     })
 
     button.addEventListener("click", (event) => {
@@ -287,29 +286,21 @@ const displayController = (() => {
                 infoController.play();
                 event.target.textContent = "Restart Game";
                 event.target.classList = "reset";
+                game.getSymbol() === "x" ? infoController.playerMove(player1.getPlayerName()) :
+                    infoController.playerMove(player2.getPlayerName());
             } else {
                 infoController.name();
             }
-
-        }
-        if (event.target.classList.contains("reset")) {
+        } else if (event.target.classList.contains("reset")) {
             gameBoard.restartBoard();
             renderBoard();
             infoController.reset();
-
+            game.getSymbol() === "x" ? infoController.playerMove(player1.getPlayerName()) :
+                infoController.playerMove(player2.getPlayerName());
         }
-
     })
 
     return {
         renderBoard,
     }
-
 })();
-
-
-
-// const player1 = createPlayer("x");
-// const player2 = createPlayer("o");
-
-console.table(gameBoard.getBoard());
